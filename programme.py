@@ -18,7 +18,17 @@ def find_seed(g,c=0,eps=2**(-26)):
 def f(x):
     return 2*x-1
 
-find_seed(f)
+#find_seed(f)
+
+import autograd
+from autograd import numpy as np
+
+def grad_f(x,y):
+    g=autograd.grad
+    return np.r_[g(f,0)(x,y),g(f,1)(x,y)]
 
 
+#def simple_contour(f,c=0.0,delta=0.01):
 
+
+p

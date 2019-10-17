@@ -32,9 +32,10 @@ def grad_f(x,y):
 
 
 def simple_contour(f,c=0.0,delta=0.01):
+    x=[0]
+    y=[find_seed(g,c)]
     def g(t):
         return f(0,t)
-    x=[0], y=[find_seed(g,c)]
     for i in range(100):
         grad=grad_f(x[i],y[i])
         aux=[grad[1],-grad[0]]

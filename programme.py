@@ -32,10 +32,13 @@ def grad_f(x,y):
 
 
 def simple_contour(f,c=0.0,delta=0.01):
-    x=[0]
-    y=[find_seed(g,c)]
+    
     def g(t):
         return f(0,t)
+
+    x=[0]
+    y=[find_seed(g,c)]
+
     for i in range(100):
         grad=grad_f(x[i],y[i])
         aux=[grad[1],-grad[0]]
@@ -43,10 +46,11 @@ def simple_contour(f,c=0.0,delta=0.01):
         vect_orthon=[delta/norme_aux*aux[0],delta/norme_aux*aux[1]]
         posx=x[i]+vect_orthon[0]
         posy=y[i]+vect_orthon[1]
-        if posx>1 or posx<0:
+        if posx>1 or posx<0 or posy>1 or posy<0:
             posx=posx-2*vect_orthon[0]
-        elif posy>1 or posy<0:
             posy=posy-2*vect_orthon[1]
+        elif posx>1 or posx<0 or posy>1 or posy<0:
+            return x,y
         x.append(posx)
         y.append(posy)
     return x,y

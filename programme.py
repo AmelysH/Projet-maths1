@@ -1,5 +1,7 @@
 import autograd
 from autograd import numpy as np
+import matplotlib.pyplot as plt
+
 
 def find_seed(g,c=0,eps=2**(-26)):   
     if g(0)<=c<=g(1):
@@ -23,7 +25,6 @@ def f(x,y):
     return np.sin(x)+2.0*np.sin(y)
 
 
-
 def simple_contour(f,c=0.0,delta=0.01):
     
     def grad_f(x,y):
@@ -33,10 +34,12 @@ def simple_contour(f,c=0.0,delta=0.01):
     def g(t):
         return f(0,t)
 
-    x=[0]
-    y=[find_seed(g,c)]
+    x=[0.0]
+    y=[float(find_seed(g,c))]
 
-    for i in range(100):
+    i=0
+
+    while abs(f(x[i],y[i])-c)<abs(c/100):
         grad=grad_f(x[i],y[i])
         aux=[grad[1],-grad[0]]
         norme_aux=np.sqrt(aux[0]**2+aux[1]**2)
@@ -50,8 +53,15 @@ def simple_contour(f,c=0.0,delta=0.01):
             return x,y
         x.append(posx)
         y.append(posy)
+        i+=1
     return x,y
-            
+
+def f_test(x,y):
+    return np.power(x,2)+np.power(y,2)
+
+x,y=simple_contour(f_test,0.25)
+plt.plot(x,y)
+plt.show()            
 
 
 

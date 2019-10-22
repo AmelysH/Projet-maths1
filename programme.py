@@ -4,7 +4,7 @@ from autograd import numpy as np
 import matplotlib
 from matplotlib import pyplot as plt
 =======
-import matplotlib.pyplot as plt
+
 
 >>>>>>> db8f87144ff3210586605c357789f437d904e08a
 
@@ -50,12 +50,7 @@ def simple_contour(f,c=0.0,delta=0.01):
             return x[:-1],y[:-1]
         grad=grad_f(x[-1],y[-1])
 =======
-    y=[float(find_seed(g,c))]
-
-    i=0
-
-    while abs(f(x[i],y[i])-c)<abs(c/100):
-        grad=grad_f(x[i],y[i])
+    
 >>>>>>> db8f87144ff3210586605c357789f437d904e08a
         aux=[grad[1],-grad[0]]
         norme_aux=np.sqrt(aux[0]**2+aux[1]**2)
@@ -69,19 +64,7 @@ def simple_contour(f,c=0.0,delta=0.01):
             if posx+delta>1 or posx-delta<0 or posy+delta>1 or posy-delta<0:
                 return x,y
 =======
-        elif posx>1 or posx<0 or posy>1 or posy<0:
-            return x,y
-        x.append(posx)
-        y.append(posy)
-        i+=1
-    return x,y
-
-def f_test(x,y):
-    return np.power(x,2)+np.power(y,2)
-
-x,y=simple_contour(f_test,0.25)
-plt.plot(x,y)
-plt.show()            
+                
 >>>>>>> db8f87144ff3210586605c357789f437d904e08a
 
         if grad[0]==0.0:

@@ -1,7 +1,12 @@
 import autograd
 from autograd import numpy as np
+<<<<<<< HEAD
 import matplotlib
 from matplotlib import pyplot as plt
+=======
+import matplotlib.pyplot as plt
+
+>>>>>>> db8f87144ff3210586605c357789f437d904e08a
 
 def find_seed(g,c=0,debut=0,fin=1,eps=2**(-26)):
     if g(debut)<=c<=g(fin):
@@ -25,7 +30,6 @@ def f(x,y):
     return np.sin(x)+2.0*np.sin(y)
 
 
-
 def simple_contour(f,c=0.0,delta=0.01):
 
     def grad_f(x,y):
@@ -36,6 +40,7 @@ def simple_contour(f,c=0.0,delta=0.01):
         return f(0,t)
 
     x=[0.0]
+<<<<<<< HEAD
     y=[find_seed(g,c)]
 
 
@@ -44,6 +49,14 @@ def simple_contour(f,c=0.0,delta=0.01):
         if x[-1]==None or y[-1]==None:
             return x[:-1],y[:-1]
         grad=grad_f(x[-1],y[-1])
+=======
+    y=[float(find_seed(g,c))]
+
+    i=0
+
+    while abs(f(x[i],y[i])-c)<abs(c/100):
+        grad=grad_f(x[i],y[i])
+>>>>>>> db8f87144ff3210586605c357789f437d904e08a
         aux=[grad[1],-grad[0]]
         norme_aux=np.sqrt(aux[0]**2+aux[1]**2)
         vect_orthon=[delta/norme_aux*aux[0],delta/norme_aux*aux[1]]
@@ -52,8 +65,24 @@ def simple_contour(f,c=0.0,delta=0.01):
         if posx+delta>1 or posx-delta<0 or posy+delta>1 or posy-delta<0:
             posx=posx-2*vect_orthon[0]
             posy=posy-2*vect_orthon[1]
+<<<<<<< HEAD
             if posx+delta>1 or posx-delta<0 or posy+delta>1 or posy-delta<0:
                 return x,y
+=======
+        elif posx>1 or posx<0 or posy>1 or posy<0:
+            return x,y
+        x.append(posx)
+        y.append(posy)
+        i+=1
+    return x,y
+
+def f_test(x,y):
+    return np.power(x,2)+np.power(y,2)
+
+x,y=simple_contour(f_test,0.25)
+plt.plot(x,y)
+plt.show()            
+>>>>>>> db8f87144ff3210586605c357789f437d904e08a
 
         if grad[0]==0.0:
             x.append(posx)

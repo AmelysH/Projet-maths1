@@ -9,7 +9,7 @@ def find_seed(g,c=0,debut=0,fin=1,eps=2**(-26)):
         b=fin
     else :
         return None
-    while b-a>eps:
+    while abs(g((a+b)/2)-c)>eps:
         milieu=(a+b)/2
         if g(a)<=c<=g(milieu) or g(a)>=c>=g(milieu):
             b=milieu
@@ -35,7 +35,6 @@ def simple_contour(f,c=0.0,delta=0.01):
     y=[find_seed(g,c)]
 
 
-
     for i in range(1000):
         if x[-1]==None or y[-1]==None:
             return x[:-1],y[:-1]
@@ -45,18 +44,23 @@ def simple_contour(f,c=0.0,delta=0.01):
         vect_orthon=[delta/norme_aux*aux[0],delta/norme_aux*aux[1]]
         posx=x[-1]+vect_orthon[0]
         posy=y[-1]+vect_orthon[1]
-        if posx+delta>1 or posx-delta<0 or posy+delta>1 or posy-delta<0:
+        if posx>1 or posx<0 or posy>1 or posy<0:
             posx=posx-2*vect_orthon[0]
             posy=posy-2*vect_orthon[1]
-            if posx+delta>1 or posx-delta<0 or posy+delta>1 or posy-delta<0:
+            if posx>1 or posx<0 or posy>1 or posy<0:
                 return x,y
+
+        elif i>=1 and vect_orthon[0]*(x[i]-x[i-1])+vect_orthon[1]*(y[i]-y[i-1])<0:
+            posx=posx-2*vect_orthon[0]
+            posy=posy-2*vect_orthon[1]
+
 
         if grad[0]==0.0:
             x.append(posx)
-            y.append(find_seed(lambda t:f(posx,t),c,posy-delta,posy+delta))
+            y.append(find_seed(lambda t:f(posx,t),c,max(posy-delta,0),min(posy+delta,1)))
 
         else :
-            t=find_seed(lambda t:f(t,posy+(t-posx)*grad[1]/grad[0]),c,posx-delta,posx+delta)
+            t=find_seed(lambda t:f(t,posy+(t-posx)*grad[1]/grad[0]),c,max(posx-delta,0),min(posx+delta,1))
             x.append(t)
             try :
                 y.append(posy+(t-posx)*grad[1]/grad[0])
@@ -98,25 +102,19 @@ def contour(f,c=0.0,xc=[0.0,1.0], yc=[0.0,1.0], delta=0.01):
         x_droite,y_droite=simple_contour(rotation(rotation(f_nor)),c,delta)
         x_bas,y_bas=simple_contour(rotation(rotation(rotation(f_nor))),c,delta)
 
-        print(x_droite,y_droite)
-        print(x_haut[0],y_haut[0])
-        print(x_gauche[0],y_gauche[0])
-        print(x_bas,y_bas)
+        print(x_bas[0:10],y_bas[0:10])
+        print(x_droite[0:10],y_droite[0:10])
 
         ajout_renormalisation(x_gauche,y_gauche)
-        ajout_renormalisation(x_haut,y_haut)
-        ajout_renormalisation(x_droite,y_droite)
-        ajout_renormalisation(x_bas,y_bas)
-        #ajout_renormalisation([1-y for y in y_haut],x_haut)
-        #ajout_renormalisation([1-x for x in x_droite],[1-y for y in y_droite])
-        #ajout_renormalisation([y for y in y_bas],[1-x for x in x_bas])
+        ajout_renormalisation(y_haut,[1-x for x in x_haut])
+        ajout_renormalisation([1-x for x in x_droite],[1-y for y in y_droite])
+        ajout_renormalisation([1-y for y in y_bas],x_bas)
 
     return xs,ys
 
 plt.close()
-x,y=contour(f_test,0.5)
-plt.plot(x,y)
-plt.axis('equal')
+x,y=contour(f_test,1.5)
+plt.scatter(x,y,color='blue',s=1)
 plt.xlim(0.0,1.0)
 plt.ylim(0.0,1.0)
 plt.show()

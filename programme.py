@@ -4,17 +4,14 @@ import matplotlib
 from matplotlib import pyplot as plt
 
 def find_seed(g,c=0,debut=0,fin=1,eps=2**(-26)):
-    if g(debut)<=c<=g(fin):
+    if g(debut)<=c<=g(fin) or g(fin)<=c<=g(debut):
         a=debut
         b=fin
-    elif g(fin)<=c<=g(debut):
-        a=fin
-        b=debut
     else :
         return None
     while b-a>eps:
         milieu=(a+b)/2
-        if c<=g(milieu):
+        if g(a)<=c<=g(milieu) or g(a)>=c>=g(milieu):
             b=milieu
         else :
             a=milieu
@@ -29,7 +26,7 @@ def simple_contour(f,c=0.0,delta=0.01):
 
     def grad_f(x,y):
         gr=autograd.grad
-        return np.r_[gr(f,0)(x,y),gr(f,1)(x,y)]
+        return [gr(f,0)(x,y),gr(f,1)(x,y)]
 
     def g(t):
         return f(0,t)
@@ -68,57 +65,60 @@ def simple_contour(f,c=0.0,delta=0.01):
     return x,y
 
 def f_test(x,y):
-    return np.power(x,2)+np.power(y,2)
+    return np.power(x,2)+np.power(y-1,2)
 
-plt.close()
-x,y=simple_contour(f_test,0.5)
-plt.plot(x,y)
-plt.show()
 
+
+def rotation(g):      #Si g est définie sur [0,1]x[0,1], renvoie la fonction g rotationnée de pi/2
+    return lambda x,y : g(y,1-x)
 
 def contour(f,c=0.0,xc=[0.0,1.0], yc=[0.0,1.0], delta=0.01):
-    xs=[], ys=[]
+
+    xs=[]
+    ys=[]
     for i in range(len(xc)-1):
-        debx=xc[i], finx=x[i+1]
-        deby=yc[i], finy=y[i+1]
-        ecartx=finx-debx
-        ecarty=finy-deby
+        deb_x=xc[i]
+        fin_x=xc[i+1]
+        deb_y=yc[i]
+        fin_y=yc[i+1]
+        ecart_x=fin_x-deb_x
+        ecart_y=fin_y-deb_y
 
-        def fad(x,y):
-            return f((x-debx)/ecartx,(y-deby)/ecarty)
-        xad1,yad1 = simple_contour(fad,c,delta)
-        x1=(np.array(xa1)*ecartx+debx).tolist()
-        y1=(np.array(ya1)*ecarty+deby).tolist()
-        xs.append(x1)
-        ys.append(y1)
+        def f_nor(x,y):                # On se ramène à une fonction 'normalisée' définie sur [0,1]x[0,1]
+            return f(x*ecart_x+deb_x,y*ecart_y+deb_y)
 
+        def ajout_renormalisation(liste_x,liste_y):
+            for x in liste_x:
+                xs.append(x*ecart_x+deb_x)
+            for y in liste_y:
+                ys.append(y*ecart_y+deb_y)
 
-        def gad(x,y):
-            return f((y-deby)/ecarty,(x-debx)/ecartx)
-        xad2,yad2 = simple_contour(gad,c,delta)
-        x2=(np.array(xa2)*ecartx+debx).tolist()
-        y2=(np.array(ya2)*ecarty+deby).tolist()
-        xs.append(x2)
-        ys.append(y2)
+        x_gauche,y_gauche=simple_contour(f_nor,c,delta)
+        x_haut,y_haut=simple_contour(rotation(f_nor),c,delta)
+        x_droite,y_droite=simple_contour(rotation(rotation(f_nor)),c,delta)
+        x_bas,y_bas=simple_contour(rotation(rotation(rotation(f_nor))),c,delta)
 
-        def had(x,y):
-            return f(1-((x-debx)/ecartx),(y-deby)/ecarty)
-        xad3,yad3 = simple_contour(had,c,delta)
-        x3=(np.array(xa3)*ecartx+debx).tolist()
-        y3=(np.array(ya3)*ecarty+deby).tolist()
-        xs.append(x3)
-        ys.append(y3)
+        print(x_droite,y_droite)
+        print(x_haut[0],y_haut[0])
+        print(x_gauche[0],y_gauche[0])
+        print(x_bas,y_bas)
 
-        def iad(x,y):
-            return f((x-debx)/ecartx,1-((y-deby)/ecarty))
-        xad4,yad4 = simple_contour(iad,c,delta)
-        x4=(np.array(xa4)*ecartx+debx).tolist()
-        y4=(np.array(ya4)*ecarty+deby).tolist()
-        xs.append(x4)
-        ys.append(y4)
+        ajout_renormalisation(x_gauche,y_gauche)
+        ajout_renormalisation(x_haut,y_haut)
+        ajout_renormalisation(x_droite,y_droite)
+        ajout_renormalisation(x_bas,y_bas)
+        #ajout_renormalisation([1-y for y in y_haut],x_haut)
+        #ajout_renormalisation([1-x for x in x_droite],[1-y for y in y_droite])
+        #ajout_renormalisation([y for y in y_bas],[1-x for x in x_bas])
 
     return xs,ys
 
+plt.close()
+x,y=contour(f_test,0.5)
+plt.plot(x,y)
+plt.axis('equal')
+plt.xlim(0.0,1.0)
+plt.ylim(0.0,1.0)
+plt.show()
 
-        
-        
+

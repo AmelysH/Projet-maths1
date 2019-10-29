@@ -22,6 +22,7 @@ def f(x,y):
     return np.sin(x)+2.0*np.sin(y)
 
 
+
 def simple_contour(f,c=0.0,delta=0.01):
 
     def grad_f(x,y):
@@ -34,8 +35,9 @@ def simple_contour(f,c=0.0,delta=0.01):
     x=[0.0]
     y=[find_seed(g,c)]
 
-
-    for i in range(1000):
+    i=0
+    
+    while True:
         if x[-1]==None or y[-1]==None:
             return x[:-1],y[:-1]
         grad=grad_f(x[-1],y[-1])
@@ -44,16 +46,22 @@ def simple_contour(f,c=0.0,delta=0.01):
         vect_orthon=[delta/norme_aux*aux[0],delta/norme_aux*aux[1]]
         posx=x[-1]+vect_orthon[0]
         posy=y[-1]+vect_orthon[1]
-        if posx>1 or posx<0 or posy>1 or posy<0:
-            posx=posx-2*vect_orthon[0]
-            posy=posy-2*vect_orthon[1]
+
+        if i==0:
+            if posx>1 or posx<0 or posy>1 or posy<0:
+                posx=posx-2*vect_orthon[0]
+                posy=posy-2*vect_orthon[1]
+                if posx>1 or posx<0 or posy>1 or posy<0:
+                    return x,y
+
+        elif i>=1 :
+            if vect_orthon[0]*(x[i]-x[i-1])+vect_orthon[1]*(y[i]-y[i-1])<0:
+                posx=posx-2*vect_orthon[0]
+                posy=posy-2*vect_orthon[1]
             if posx>1 or posx<0 or posy>1 or posy<0:
                 return x,y
 
-        elif i>=1 and vect_orthon[0]*(x[i]-x[i-1])+vect_orthon[1]*(y[i]-y[i-1])<0:
-            posx=posx-2*vect_orthon[0]
-            posy=posy-2*vect_orthon[1]
-
+        i+=1
 
         if grad[0]==0.0:
             x.append(posx)

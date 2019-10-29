@@ -71,6 +71,14 @@ def simple_contour(f,c=0.0,delta=0.01):
 def f_test(x,y):
     return np.power(x,2)+np.power(y-1,2)
 
+def g(x,y):
+    return np.exp(-np.power(x,2)-np.power(y,2))
+def h(x,y):
+    return g(x-1,y-1)
+
+def f_test2(x,y):
+    return 2*(g(x,y)-h(x,y))
+
 
 
 def rotation(g):      #Si g est définie sur [0,1]x[0,1], renvoie la fonction g rotationnée de pi/2
@@ -81,42 +89,45 @@ def contour(f,c=0.0,xc=[0.0,1.0], yc=[0.0,1.0], delta=0.01):
     xs=[]
     ys=[]
     for i in range(len(xc)-1):
-        deb_x=xc[i]
-        fin_x=xc[i+1]
-        deb_y=yc[i]
-        fin_y=yc[i+1]
-        ecart_x=fin_x-deb_x
-        ecart_y=fin_y-deb_y
+        for j in range(len(yc)-1):
+            deb_x=xc[i]
+            fin_x=xc[i+1]
+            deb_y=yc[j]
+            fin_y=yc[j+1]
+            ecart_x=fin_x-deb_x
+            ecart_y=fin_y-deb_y
 
-        def f_nor(x,y):                # On se ramène à une fonction 'normalisée' définie sur [0,1]x[0,1]
-            return f(x*ecart_x+deb_x,y*ecart_y+deb_y)
+            def f_nor(x,y):                # On se ramène à une fonction 'normalisée' définie sur [0,1]x[0,1]
+                return f(x*ecart_x+deb_x,y*ecart_y+deb_y)
 
-        def ajout_renormalisation(liste_x,liste_y):
-            for x in liste_x:
-                xs.append(x*ecart_x+deb_x)
-            for y in liste_y:
-                ys.append(y*ecart_y+deb_y)
+            def ajout_renormalisation(liste_x,liste_y):
+                for x in liste_x:
+                    xs.append(x*ecart_x+deb_x)
+                for y in liste_y:
+                    ys.append(y*ecart_y+deb_y)
 
-        x_gauche,y_gauche=simple_contour(f_nor,c,delta)
-        x_haut,y_haut=simple_contour(rotation(f_nor),c,delta)
-        x_droite,y_droite=simple_contour(rotation(rotation(f_nor)),c,delta)
-        x_bas,y_bas=simple_contour(rotation(rotation(rotation(f_nor))),c,delta)
+            x_gauche,y_gauche=simple_contour(f_nor,c,delta)
+            x_haut,y_haut=simple_contour(rotation(f_nor),c,delta)
+            x_droite,y_droite=simple_contour(rotation(rotation(f_nor)),c,delta)
+            x_bas,y_bas=simple_contour(rotation(rotation(rotation(f_nor))),c,delta)
 
-        print(x_bas[0:10],y_bas[0:10])
-        print(x_droite[0:10],y_droite[0:10])
-
-        ajout_renormalisation(x_gauche,y_gauche)
-        ajout_renormalisation(y_haut,[1-x for x in x_haut])
-        ajout_renormalisation([1-x for x in x_droite],[1-y for y in y_droite])
-        ajout_renormalisation([1-y for y in y_bas],x_bas)
+            ajout_renormalisation(x_gauche,y_gauche)
+            ajout_renormalisation(y_haut,[1-x for x in x_haut])
+            ajout_renormalisation([1-x for x in x_droite],[1-y for y in y_droite])
+            ajout_renormalisation([1-y for y in y_bas],x_bas)
 
     return xs,ys
 
+
+from scipy import*
+quadri=linspace(-2,3,10).tolist()
 plt.close()
-x,y=contour(f_test,1.5)
-plt.scatter(x,y,color='blue',s=1)
-plt.xlim(0.0,1.0)
-plt.ylim(0.0,1.0)
+for n in [-1.5,-1.0,-0.5,0.0,0.5,1.0,1.5]:
+    x,y=contour(f_test2,n,quadri,quadri)
+    plt.scatter(x,y,color='blue',s=1)
+plt.xlim(-2.0,3.0)
+plt.ylim(-1.0,2.0)
 plt.show()
+
 
 
